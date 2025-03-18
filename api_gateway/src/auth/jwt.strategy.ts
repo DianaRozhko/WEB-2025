@@ -1,30 +1,34 @@
-// src/auth/jwt.strategy.ts
+// api-gateway/src/auth/jwt.strategy.ts
 
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import * as dotenv from 'dotenv';
 
-dotenv.config(); // Зчитує змінні середовища з .env у поточній папці (або вкажіть { path: ... })
+// Завантаження змінних середовища з файлу .env
+dotenv.config();
 
 @Injectable()
+// JwtStrategy визначає, як вилучати і перевіряти JWT із запиту.
+// Вона використовує секретний ключ із змінних середовища для валідації підпису токена.
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
-    const secret = process.env.JWT_SECRET; // Читаємо з env
+    // Отримуємо секретний ключ із змінних середовища
+    const secret = process.env.JWT_SECRET;
     if (!secret) {
       throw new Error('JWT_SECRET is not defined in .env');
     }
-
     super({
+      // Вилучення токена з заголовку Authorization у форматі "Bearer <token>"
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: secret, // Тепер точно рядок, а не undefined
+      ignoreExpiration: false, // Не ігнорувати термін дії токена
+      secretOrKey: secret,     // Використовувати секретний ключ для перевірки підпису
     });
   }
 
+  // Метод validate викликається, якщо токен валідний.
+  // Він повертає об'єкт, який NestJS зберігає як req.user.
   async validate(payload: any) {
-    // У payload зазвичай лежить { email, sub, iat, exp, ... }
-    // Ви можете повернути будь-які поля, які треба зберегти у req.user
     return { userId: payload.sub, email: payload.email };
   }
 }

@@ -1,54 +1,45 @@
 // api-gateway/src/app.controller.ts
 
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  Patch,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Delete, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './auth/jwt.guard';
 
-@Controller('users')
+@Controller('users') // Базовий маршрут для операцій над користувачами
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  // Реєстрація нового користувача
+  // POST /users/register: Роут для реєстрації користувача
   @Post('register')
   register(@Body() createUserDto: any) {
     return this.appService.createUser(createUserDto);
   }
 
-  // Логін користувача
+  // POST /users/login: Роут для логіну користувача
   @Post('login')
   login(@Body() loginUserDto: any) {
     return this.appService.loginUser(loginUserDto);
   }
 
-  // Отримати всіх користувачів (захищений)
+  // GET /users: Захищений маршрут для отримання списку всіх користувачів
   @UseGuards(JwtAuthGuard)
   @Get()
   findAll() {
     return this.appService.getAllUsers();
   }
 
-  // Отримати користувача за ID
+  // GET /users/:id: Отримання даних користувача за ID
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.appService.getUserById(id);
   }
 
-  // Оновлення користувача (захищене JWT)
+  // PATCH /users/:id: Роут для оновлення даних користувача
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: any) {
     return this.appService.updateUser(id, updateUserDto);
   }
 
-  // Видалити користувача
+  // DELETE /users/:id: Роут для видалення користувача
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.appService.removeUser(id);
