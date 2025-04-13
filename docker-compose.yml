@@ -16,10 +16,36 @@ services:
     image: rabbitmq:3-management
     ports:
       - "5672:5672"
-      - "15672:15672" # Для доступу до веб-інтерфейсу RabbitMQ
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+
+  api_gateway:
+    build:
+      context: ./api_gateway
+      dockerfile: Dockerfile.yml
+    ports:
+      - "3002:3002"
+    depends_on:
+      - user_service
+      - venue_service
+
+  user_service:
+    build:
+      context: ./user_service
+      dockerfile: Dockerfile.yml
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  venue_service:
+    build:
+      context: ./venue_service
+      dockerfile: Dockerfile.yml
+    depends_on:
+      - postgres
+      - rabbitmq
 
 volumes:
   pg_data:

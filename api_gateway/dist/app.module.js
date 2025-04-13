@@ -14,6 +14,7 @@ const app_service_1 = require("./app.service");
 const passport_1 = require("@nestjs/passport");
 const jwt_1 = require("@nestjs/jwt");
 const jwt_strategy_1 = require("./auth/jwt.strategy");
+const admin_guard_1 = require("./auth/admin.guard");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,6 +31,15 @@ exports.AppModule = AppModule = __decorate([
                         queueOptions: { durable: false },
                     },
                 },
+                {
+                    name: 'VENUE_SERVICE',
+                    transport: microservices_1.Transport.RMQ,
+                    options: {
+                        urls: ['amqp://localhost:5672'],
+                        queue: 'venue_queue',
+                        queueOptions: { durable: false },
+                    },
+                },
             ]),
             passport_1.PassportModule,
             jwt_1.JwtModule.register({
@@ -38,7 +48,7 @@ exports.AppModule = AppModule = __decorate([
             }),
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, jwt_strategy_1.JwtStrategy],
+        providers: [app_service_1.AppService, jwt_strategy_1.JwtStrategy, admin_guard_1.AdminGuard],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

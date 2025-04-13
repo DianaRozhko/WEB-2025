@@ -1,22 +1,20 @@
-// user-service/src/user/dto/update-user.dto.ts
-
+//update-user.dto.ts
 import { IsString, IsOptional, IsEmail, MinLength } from 'class-validator';
 
-/**
- * DTO для оновлення даних користувача.
- * Усі поля є опційними, що дозволяє оновлювати лише необхідні дані.
- */
 export class UpdateUserDto {
+  @IsString()
   @IsOptional()
-  @IsString({ message: 'Name must be a string' })
+  @MinLength(1)
   name?: string;
 
+  @IsEmail()
   @IsOptional()
-  @IsEmail({}, { message: 'Email must be valid' })
   email?: string;
 
+  @IsString()
+  @MinLength(6)
   @IsOptional()
-  @IsString({ message: 'Password must be a string' })
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password?: string;
 }
+
+

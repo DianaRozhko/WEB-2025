@@ -7,34 +7,45 @@ import { User } from '../user.entity';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
-// Сервіс для аутентифікації користувачів. Він перевіряє облікові дані і генерує JWT.
 export class AuthService {
   constructor(
-    private readonly usersService: UserService, // Використовується для пошуку користувача
-    private readonly jwtService: JwtService,     // Використовується для генерації JWT
+    private readonly usersService: UserService,
+    private readonly jwtService: JwtService,
   ) {}
 
   /**
-   * validateUser перевіряє, чи існує користувач із заданим email і чи співпадає пароль.
-   * Повертає користувача, якщо валідація пройшла успішно, або null інакше.
+   * Перевіряє email та пароль користувача, повертає сутність User, якщо все вірно.
    */
-  async validateUser(email: string, pass: string): Promise<User | null> {
+  async validateUser(email: string, rawPassword: string): Promise<User | null> {
+    // Знаходимо користувача за email
     const user = await this.usersService.findByEmail(email);
     if (!user) {
+      // Не знайдено користувача з таким email
       return null;
     }
-    const isMatch = await bcrypt.compare(pass, user.password);
-    return isMatch ? user : null;
+
+    // Порівнюємо відкритий пароль з хешем у БД
+    const passwordMatches = await bcrypt.compare(rawPassword, user.password);
+    if (!passwordMatches) {
+      // Пароль невірний
+      return null;
+    }
+    // Якщо все гаразд, повертаємо користувача
+    return user;
   }
 
   /**
-   * login генерує JWT на основі інформації про користувача.
-   * Повертає об'єкт з access_token.
+   * Формує та повертає JWT-токен для авторизованого користувача.
    */
   async login(user: User) {
-    const payload = { email: user.email, sub: user.id };
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role, // 👈 додаємо роль до токена
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
+  
 }

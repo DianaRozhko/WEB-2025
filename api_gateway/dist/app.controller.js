@@ -16,6 +16,7 @@ exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
 const jwt_guard_1 = require("./auth/jwt.guard");
+const admin_guard_1 = require("./auth/admin.guard");
 let AppController = class AppController {
     appService;
     constructor(appService) {
@@ -27,29 +28,65 @@ let AppController = class AppController {
     login(loginUserDto) {
         return this.appService.loginUser(loginUserDto);
     }
-    findAll() {
+    findAllUsers() {
         return this.appService.getAllUsers();
     }
-    findOne(id) {
+    findOneUser(id) {
         return this.appService.getUserById(id);
     }
-    update(id, updateUserDto) {
+    updateUser(id, updateUserDto) {
         return this.appService.updateUser(id, updateUserDto);
     }
-    remove(id) {
+    removeUser(id) {
         return this.appService.removeUser(id);
+    }
+    createVenue(createVenueDto) {
+        return this.appService.createVenue(createVenueDto);
+    }
+    getAllVenues() {
+        return this.appService.getAllVenues();
+    }
+    updateVenue(id, updateVenueDto) {
+        return this.appService.updateVenue(id, updateVenueDto);
+    }
+    removeVenue(id) {
+        return this.appService.removeVenue(id);
+    }
+    getSlotsForVenue(venueId) {
+        return this.appService.getSlotsForVenue(venueId);
+    }
+    generateSlots(venueId, generateDto) {
+        return this.appService.generateSlotsForVenue({
+            ...generateDto,
+            venueId,
+        });
+    }
+    createSlot(createSlotDto) {
+        return this.appService.createSlot(createSlotDto);
+    }
+    getAllSlots() {
+        return this.appService.getAllSlots();
+    }
+    getSlotById(id) {
+        return this.appService.getSlotById(id);
+    }
+    updateSlot(id, updateSlotDto) {
+        return this.appService.updateSlot(id, updateSlotDto);
+    }
+    removeSlot(id) {
+        return this.appService.removeSlot(id);
     }
 };
 exports.AppController = AppController;
 __decorate([
-    (0, common_1.Post)('register'),
+    (0, common_1.Post)('users/register'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "register", null);
 __decorate([
-    (0, common_1.Post)('login'),
+    (0, common_1.Post)('users/login'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -57,35 +94,119 @@ __decorate([
 ], AppController.prototype, "login", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard),
-    (0, common_1.Get)(),
+    (0, common_1.Get)('users'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], AppController.prototype, "findAll", null);
+], AppController.prototype, "findAllUsers", null);
 __decorate([
-    (0, common_1.Get)(':id'),
+    (0, common_1.Get)('users/:id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
-], AppController.prototype, "findOne", null);
+], AppController.prototype, "findOneUser", null);
 __decorate([
-    (0, common_1.Patch)(':id'),
+    (0, common_1.Patch)('users/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
-], AppController.prototype, "update", null);
+], AppController.prototype, "updateUser", null);
 __decorate([
-    (0, common_1.Delete)(':id'),
+    (0, common_1.Delete)('users/:id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
-], AppController.prototype, "remove", null);
+], AppController.prototype, "removeUser", null);
+__decorate([
+    (0, common_1.Post)('venues'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "createVenue", null);
+__decorate([
+    (0, common_1.Get)('venues'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "getAllVenues", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    (0, common_1.Patch)('venues/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "updateVenue", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    (0, common_1.Delete)('venues/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "removeVenue", null);
+__decorate([
+    (0, common_1.Get)('venues/:id/slots'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "getSlotsForVenue", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    (0, common_1.Post)('venues/:id/generate-slots'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "generateSlots", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    (0, common_1.Post)('slots'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "createSlot", null);
+__decorate([
+    (0, common_1.Get)('slots'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "getAllSlots", null);
+__decorate([
+    (0, common_1.Get)('slots/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "getSlotById", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    (0, common_1.Patch)('slots/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "updateSlot", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    (0, common_1.Delete)('slots/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "removeSlot", null);
 exports.AppController = AppController = __decorate([
-    (0, common_1.Controller)('users'),
+    (0, common_1.Controller)(),
     __metadata("design:paramtypes", [app_service_1.AppService])
 ], AppController);
 //# sourceMappingURL=app.controller.js.map

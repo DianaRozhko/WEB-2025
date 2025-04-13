@@ -1,6 +1,12 @@
-// user-service/src/user/user.service.ts
+// Повна обробка: створення, оновлення, видалення, перевірка email
+// Обробляє 404, 409, 500
 
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
@@ -9,79 +15,91 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
-// Сервіс для роботи з користувачами, що включає операції створення, оновлення, отримання і видалення
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>, // Репозиторій, який надає доступ до таблиці "users"
+    private userRepository: Repository<User>,
   ) {}
 
-  /**
-   * Створення нового користувача.
-   * Хешує пароль перед збереженням.
-   */
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { password } = createUserDto;
-    const hashedPassword = await bcrypt.hash(password, 10); // Хешування пароля з використанням bcrypt
+    const { password: rawPassword, ...otherProps } = createUserDto;
+    const existingUser = await this.userRepository.findOne({
+      where: { email: otherProps.email },
+    });
+    if (existingUser) {
+      console.log("Email вже використовується")
+      throw new ConflictException('Email вже зайнято');
+    }
 
-    // Створення нового об'єкта користувача на основі даних з DTO
-    const user = this.userRepository.create({
-      ...createUserDto,
-      password: hashedPassword, // Зберігаємо хешований пароль
+    const hashedPassword = await bcrypt.hash(rawPassword, 10);
+    const newUser = this.userRepository.create({
+      ...otherProps,
+      password: hashedPassword,
     });
 
-    // Збереження користувача в базі даних
-    return this.userRepository.save(user);
+    try {
+      return await this.userRepository.save(newUser);
+    } catch (error) {
+      throw new InternalServerErrorException('Не вдалося зберегти користувача');
+    }
   }
 
-  /**
-   * Отримання всіх користувачів.
-   */
   async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    try {
+      return await this.userRepository.find();
+    } catch {
+      throw new InternalServerErrorException('Не вдалося отримати користувачів');
+    }
   }
 
-  /**
-   * Отримання користувача за ID.
-   */
-  async findOne(id: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { id } });
+  async findOne(id: string): Promise<User> {
+    try {
+      const user = await this.userRepository.findOne({ where: { id } });
+      if (!user) {
+        throw new NotFoundException('Користувача не знайдено');
+      }
+      return user;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException('Помилка пошуку користувача');
+    }
   }
 
-  /**
-   * Пошук користувача за email.
-   */
   async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+    try {
+      return await this.userRepository.findOne({ where: { email } });
+    } catch {
+      throw new InternalServerErrorException('Помилка при пошуку по email');
+    }
   }
 
-  /**
-   * Оновлення даних користувача.
-   * Якщо передається новий пароль, він хешується перед збереженням.
-   */
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    // Знаходимо існуючого користувача за ID
     const user = await this.findOne(id);
-    if (!user) {
-      throw new Error('User not found');
-    }
-    // Якщо оновлюється пароль, хешуємо його
+
     if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+      const rawPassword = updateUserDto.password;
+      updateUserDto.password = await bcrypt.hash(rawPassword, 10);
     }
-    // Об'єднуємо існуючі дані з новими та зберігаємо оновленого користувача
-    return this.userRepository.save({ ...user, ...updateUserDto });
+
+    Object.assign(user, updateUserDto);
+
+    try {
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (error.code === '23505' && error.detail?.includes('email')) {
+       
+        throw new ConflictException('Email вже використовується');
+      }
+      throw new InternalServerErrorException('Не вдалося оновити користувача');
+    }
   }
 
-  /**
-   * Видалення користувача.
-   * Якщо користувач не знайдений, кидає помилку.
-   */
   async remove(id: string): Promise<void> {
     const user = await this.findOne(id);
-    if (!user) {
-      throw new Error('User not found');
+    try {
+      await this.userRepository.remove(user);
+    } catch {
+      throw new InternalServerErrorException('Не вдалося видалити користувача');
     }
-    await this.userRepository.remove(user);
   }
 }

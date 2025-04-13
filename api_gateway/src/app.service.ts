@@ -1,42 +1,98 @@
-// api-gateway/src/app.service.ts
-
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class AppService {
-  // Інжектуємо ClientProxy для взаємодії з USER_SERVICE через RabbitMQ
-  constructor(@Inject('USER_SERVICE') private client: ClientProxy) {}
+  constructor(
+    @Inject('USER_SERVICE') private userClient: ClientProxy,
+    @Inject('VENUE_SERVICE') private venueClient: ClientProxy, // Додаємо Venue Client
+  ) {}
 
-  // Метод для реєстрації користувача, який надсилає повідомлення з патерном 'create_user'
+  // ====== USER SERVICE ВИКЛИКИ (без змін) ======
   async createUser(createUserDto: any) {
-    return firstValueFrom(this.client.send('create_user', createUserDto));
+    console.log('Gateway: sending create_user with:', createUserDto);
+    return firstValueFrom(this.userClient.send('create_user', createUserDto));
   }
-
-  // Метод для логіну користувача, який надсилає повідомлення з патерном 'user_login'
   async loginUser(loginUserDto: any) {
-    return firstValueFrom(this.client.send('user_login', loginUserDto));
+    return firstValueFrom(this.userClient.send('user_login', loginUserDto));
   }
-
-  // Метод для отримання списку всіх користувачів, який надсилає повідомлення 'get_all_users'
   async getAllUsers() {
-    return firstValueFrom(this.client.send('get_all_users', {}));
+    return firstValueFrom(this.userClient.send('get_all_users', {}));
   }
-
-  // Метод для отримання користувача за ID, який надсилає повідомлення 'get_user_by_id'
   async getUserById(id: string) {
-    return firstValueFrom(this.client.send('get_user_by_id', id));
+    return firstValueFrom(this.userClient.send('get_user_by_id', id));
   }
-
-  // Метод для видалення користувача, який надсилає повідомлення 'remove_user'
   async removeUser(id: string) {
-    return firstValueFrom(this.client.send('remove_user', id));
+    return firstValueFrom(this.userClient.send('remove_user', id));
+  }
+  async updateUser(id: string, updateUserDto: any) {
+    return firstValueFrom(
+      this.userClient.send('update_user', { id, dto: updateUserDto }),
+    );
   }
 
-  // Метод для оновлення користувача, який надсилає повідомлення 'update_user'
-  async updateUser(id: string, updateUserDto: any) {
-    // Передаємо об'єкт, що містить id користувача та дані для оновлення (dto)
-    return firstValueFrom(this.client.send('update_user', { id, dto: updateUserDto }));
+  // ====== VENUE SERVICE ВИКЛИКИ ======
+  async createVenue(createVenueDto: any) {
+    return firstValueFrom(
+      this.venueClient.send('create_venue', createVenueDto),
+    );
+  }
+
+  async getAllVenues() {
+    return firstValueFrom(this.venueClient.send('get_all_venues', {}));
+  }
+
+  async updateVenue(id: string, updateVenueDto: any) {
+    return firstValueFrom(
+      this.venueClient.send('update_venue', { id, dto: updateVenueDto }),
+    );
+  }
+
+  async removeVenue(id: string) {
+    return firstValueFrom(this.venueClient.send('remove_venue', id));
+  }
+
+  async getSlotsForVenue(venueId: string) {
+    return firstValueFrom(
+      this.venueClient.send('get_slots_for_venue', venueId),
+    );
+  }
+
+
+//====== Slots  ВИКЛИКИ ======
+// Створити слот
+async createSlot(dto: any) {
+  return firstValueFrom(this.venueClient.send('create_slot', dto));
+}
+
+// Отримати всі слоти
+async getAllSlots() {
+  return firstValueFrom(this.venueClient.send('get_all_slots', {}));
+}
+
+// Отримати слот за ID
+async getSlotById(id: string) {
+  return firstValueFrom(this.venueClient.send('get_slot_by_id', id));
+}
+
+// Оновити слот
+async updateSlot(id: string, dto: any) {
+  return firstValueFrom(this.venueClient.send('update_slot', { id, dto }));
+}
+
+// Видалити слот
+async removeSlot(id: string) {
+  return firstValueFrom(this.venueClient.send('remove_slot', id));
+}
+
+
+
+
+
+  async generateSlotsForVenue(dto: any) {
+    return firstValueFrom(
+      this.venueClient.send('generate_slots', dto),
+    );
   }
 }

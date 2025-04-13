@@ -69,15 +69,11 @@ export class SlotService {
   async remove(id: string) {
     const slot = await this.slotRepository.findOne({ where: { id } });
     if (!slot) throw new NotFoundException('Слот не знайдено');
-    try {
-      await this.slotRepository.remove(slot);
-    } catch {
-      throw new InternalServerErrorException('Не вдалося видалити слот');
-    }
+    await this.slotRepository.remove(slot);
+  
+
+    
   }
-
-
-
 
   async generateSlots(dto: GenerateSlotsDto): Promise<Slot[]> {
     const { venueId, period, slotDurationMinutes } = dto;

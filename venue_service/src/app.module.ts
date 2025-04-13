@@ -12,7 +12,7 @@ import { SlotModule } from './slot/slot.module';
     // Підключення до Postgres
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
+      host: process.env.DB_HOST || 'postgres',
       port: Number(process.env.DB_PORT) || 5432,
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
@@ -29,7 +29,7 @@ import { SlotModule } from './slot/slot.module';
         name: 'GATEWAY_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: [process.env.RABBITMQ_URL || 'amqp://localhost:5672'],
+          urls: [process.env.RABBITMQ_URL || 'amqp://rabbitmq:5672'],
           queue: 'gateway_queue',
           queueOptions: { durable: false },
         },

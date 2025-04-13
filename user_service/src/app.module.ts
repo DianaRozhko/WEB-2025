@@ -1,42 +1,40 @@
-// user-service/src/app.module.ts
-
+// user-service/app.module.ts
 import { Module } from '@nestjs/common';
-// TypeOrmModule використовується для підключення до бази даних
 import { TypeOrmModule } from '@nestjs/typeorm';
-// ClientsModule дозволяє реєструвати клієнтів для мікросервісної взаємодії (через RabbitMQ)
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { UserModule } from './user/user.module';
-// Імпортуємо сутність User для роботи з БД
 import { User } from './user/user.entity';
+import { UserService } from './user/user.service';
+import { UserController } from './user/user.controller';
 
 @Module({
   imports: [
-    // Налаштовуємо підключення до Postgres за допомогою TypeORM
+    // Підключення до Postgres (приклад з localhost)
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',       // хост бази даних
-      port: 5432,              // порт для підключення
-      username: 'postgres',    // ім'я користувача
-      password: 'postgres',    // пароль
-      database: 'mydb',        // назва бази даних
-      entities: [User],        // всі сутності, які використовуються в цьому сервісі
-      synchronize: true,       // Автоматичне створення/оновлення таблиць (тільки для dev-середовища!)
+      host: 'postgres',
+      port: 5432,
+      username: 'postgres',
+      password: 'postgres',
+      database: 'mydb',
+      entities: [User],
+      synchronize: true, // Увімкнено автостворення/оновлення таблиць
     }),
 
-    // Дозволяємо репозиторіям працювати з сутністю User у модулі UserModule
+    // Даємо змогу репозиторіям працювати з сутністю User
     TypeOrmModule.forFeature([User]),
-    // Імпортуємо UserModule, який містить контролери та сервіси для користувачів
+
+    // Основний модуль, де налаштована авторизація
     UserModule,
 
-    // Реєструємо клієнта для взаємодії з API Gateway (опційно, якщо потрібно надсилати повідомлення з user-service до gateway)
+    // (Необов'язково) Якщо треба підключати інші мікросервіси, робіть це тут
     ClientsModule.register([
       {
         name: 'GATEWAY_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
-          // Черга, яка слухається gateway
-          queue: 'gateway_queue',
+          urls: ['amqp://rabbitmq:5672'],
+          queue: 'gateway_queue', // Черга, що слухає gateway
           queueOptions: {
             durable: false,
           },
@@ -44,8 +42,7 @@ import { User } from './user/user.entity';
       },
     ]),
   ],
-  // Контролери та провайдери, які можна використовувати глобально (якщо потрібно)
-  controllers: [],
-  providers: [],
+  controllers: [UserController],
+  providers: [UserService],
 })
 export class AppModule {}
