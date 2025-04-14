@@ -25,6 +25,15 @@ export class AppService {
       options: {
         urls: ['amqp://rabbitmq:5672'],
         queue: 'venues_queue',
+        queueOptions: { durable: true }, // теж true
+      },
+    });
+
+    this.bookingClient = ClientProxyFactory.create({
+      transport: Transport.RMQ,
+      options: {
+        urls: ['amqp://rabbitmq:5672'],
+        queue: 'bookings_queue',
         queueOptions: { durable: true }, // ← теж true
       },
     });
@@ -302,6 +311,14 @@ async cancelBookingOrchestrated(bookingId: string) {
   }
 }
 
-
+async getBookingsForUser(user_id: string) {
+  try {
+    return await firstValueFrom(
+      this.bookingClient.send('booking_getForUser', user_id),
+    );
+  } catch (error) {
+    throw mapRpcToHttp(error);
+  }
+}
 
 }

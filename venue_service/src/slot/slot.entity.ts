@@ -13,7 +13,7 @@ export class Slot {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Venue)
+  @ManyToOne(() => Venue, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'venue_id' })
   venue: Venue;
 

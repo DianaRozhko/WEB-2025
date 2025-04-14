@@ -31,7 +31,18 @@ export class SlotService {
       });
     }
   }
-
+  async findAll(): Promise<Slot[]> {
+    try {
+      return await this.slotRepository.find({
+        order: { start_time: 'ASC' },
+      });
+    } catch {
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Не вдалося отримати список слотів',
+      });
+    }
+  }
   async findByVenue(venueId: string): Promise<Slot[]> {
     try {
       return await this.slotRepository.find({

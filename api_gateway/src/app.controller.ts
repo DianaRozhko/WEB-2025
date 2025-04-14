@@ -152,7 +152,7 @@ removeSlot(@Param('id') id: string) {
 
 
 
-@Post('bookings/from-slots')
+@Post('bookings')
 @UseGuards(JwtAuthGuard) // або що потрібно
 async createBookingFromSlots(@Body() data: { user_id: string; venue_id: string; slot_ids: string[] }) {
   // Викликаємо метод у AppService, щоб не писати всю логіку в контролері
@@ -165,6 +165,10 @@ async cancelBooking(@Param('id') bookingId: string) {
   return this.appService.cancelBookingOrchestrated(bookingId);
 }
 
-
+@UseGuards(JwtAuthGuard)
+@Get('bookings/:userId')
+getBookingsForUser(@Param('userId') userId: string) {
+  return this.appService.getBookingsForUser(userId);
+}
 
 }

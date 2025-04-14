@@ -1,4 +1,3 @@
-// api-gateway/src/app.module.ts
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppController } from './app.controller';
@@ -16,18 +15,26 @@ import { AdminGuard } from './auth/admin.guard';
         transport: Transport.RMQ,
         options: {
           urls: ['amqp://rabbitmq:5672'],
-          queue: 'user_queue',
-          queueOptions: { durable: false },
+          queue: 'users_queue',
+          queueOptions: { durable: true },
         },
       },
-      // Додаємо реєстрацію Venue Service
       {
         name: 'VENUE_SERVICE',
         transport: Transport.RMQ,
         options: {
           urls: ['amqp://rabbitmq:5672'],
-          queue: 'venue_queue',
-          queueOptions: { durable: false },
+          queue: 'venues_queue',
+          queueOptions: { durable: true },
+        },
+      },
+      {
+        name: 'BOOKING_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://rabbitmq:5672'],
+          queue: 'bookings_queue',
+          queueOptions: { durable: true },
         },
       },
     ]),
@@ -38,6 +45,6 @@ import { AdminGuard } from './auth/admin.guard';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, JwtStrategy,AdminGuard],
+  providers: [AppService, JwtStrategy, AdminGuard],
 })
 export class AppModule {}

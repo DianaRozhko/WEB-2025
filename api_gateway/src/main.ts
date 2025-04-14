@@ -19,6 +19,6 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  await app.listen(3002, '0.0.0.0');
+  await app.listen(3002);
 }
 bootstrap();

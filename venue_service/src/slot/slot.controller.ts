@@ -14,6 +14,11 @@ export class SlotController {
     return this.slotService.create(createSlotDto);
   }
 
+  @MessagePattern('slot_findAll')
+  async getAllSlots() {
+    return this.slotService.findAll();
+  }
+
   @MessagePattern('get_slots_for_venue')
   async getSlotsForVenue(venueId: string) {
     return this.slotService.findByVenue(venueId);
