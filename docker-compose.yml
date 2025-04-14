@@ -47,5 +47,14 @@ services:
       - postgres
       - rabbitmq
 
+  booking_service:
+    build:
+      context: ./booking-service
+      dockerfile: Dockerfile.yml
+    depends_on:
+      - postgres
+      - rabbitmq
+
+
 volumes:
   pg_data:

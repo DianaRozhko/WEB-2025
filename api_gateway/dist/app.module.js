@@ -26,7 +26,7 @@ exports.AppModule = AppModule = __decorate([
                     name: 'USER_SERVICE',
                     transport: microservices_1.Transport.RMQ,
                     options: {
-                        urls: ['amqp://localhost:5672'],
+                        urls: ['amqp://rabbitmq:5672'],
                         queue: 'user_queue',
                         queueOptions: { durable: false },
                     },
@@ -35,7 +35,7 @@ exports.AppModule = AppModule = __decorate([
                     name: 'VENUE_SERVICE',
                     transport: microservices_1.Transport.RMQ,
                     options: {
-                        urls: ['amqp://localhost:5672'],
+                        urls: ['amqp://rabbitmq:5672'],
                         queue: 'venue_queue',
                         queueOptions: { durable: false },
                     },

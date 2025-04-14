@@ -19,4 +19,10 @@ export declare class AppController {
     getSlotById(id: string): Promise<any>;
     updateSlot(id: string, updateSlotDto: any): Promise<any>;
     removeSlot(id: string): Promise<any>;
+    createBookingFromSlots(data: {
+        user_id: string;
+        venue_id: string;
+        slot_ids: string[];
+    }): Promise<any>;
+    cancelBooking(bookingId: string): Promise<any>;
 }

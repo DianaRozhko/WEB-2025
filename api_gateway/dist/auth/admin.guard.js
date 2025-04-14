@@ -13,6 +13,7 @@ let AdminGuard = class AdminGuard {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
         if (user?.role !== 'admin') {
+            console.log("whatafackis nes : " + user.role);
             throw new common_1.ForbiddenException('Тільки для адміністратора');
         }
         return true;

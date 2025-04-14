@@ -76,6 +76,12 @@ let AppController = class AppController {
     removeSlot(id) {
         return this.appService.removeSlot(id);
     }
+    async createBookingFromSlots(data) {
+        return this.appService.createBookingFromSlots(data);
+    }
+    async cancelBooking(bookingId) {
+        return this.appService.cancelBookingOrchestrated(bookingId);
+    }
 };
 exports.AppController = AppController;
 __decorate([
@@ -93,7 +99,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "login", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
     (0, common_1.Get)('users'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -205,6 +211,21 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "removeSlot", null);
+__decorate([
+    (0, common_1.Post)('bookings/from-slots'),
+    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "createBookingFromSlots", null);
+__decorate([
+    (0, common_1.Delete)('bookings/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "cancelBooking", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [app_service_1.AppService])

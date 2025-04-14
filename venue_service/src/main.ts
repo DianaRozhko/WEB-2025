@@ -14,9 +14,9 @@ async function bootstrap() {
   const microservice = app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: [process.env.RABBITMQ_URL || 'amqp://rabbitmq:5672'],  
-      queue: 'venue_queue',
-      queueOptions: { durable: false },
+      urls: [process.env.RABBITMQ_URL || 'amqp://rabbitmq:5672'],
+      queue: 'venues_queue',
+      queueOptions: { durable: true }, // ← теж true
     },
   });
 

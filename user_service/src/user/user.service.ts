@@ -1,15 +1,9 @@
-// Повна обробка: створення, оновлення, видалення, перевірка email
-// Обробляє 404, 409, 500
-
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import { RpcException } from '@nestjs/microservices';
+
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -26,9 +20,13 @@ export class UserService {
     const existingUser = await this.userRepository.findOne({
       where: { email: otherProps.email },
     });
+
     if (existingUser) {
-      console.log("Email вже використовується")
-      throw new ConflictException('Email вже зайнято');
+      // 409 Conflict
+      throw new RpcException({
+        statusCode: 409,
+        message: 'Email вже зайнято',
+      });
     }
 
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
@@ -40,7 +38,11 @@ export class UserService {
     try {
       return await this.userRepository.save(newUser);
     } catch (error) {
-      throw new InternalServerErrorException('Не вдалося зберегти користувача');
+      // 500 Internal Server Error
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Не вдалося зберегти користувача',
+      });
     }
   }
 
@@ -48,7 +50,10 @@ export class UserService {
     try {
       return await this.userRepository.find();
     } catch {
-      throw new InternalServerErrorException('Не вдалося отримати користувачів');
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Не вдалося отримати користувачів',
+      });
     }
   }
 
@@ -56,12 +61,22 @@ export class UserService {
     try {
       const user = await this.userRepository.findOne({ where: { id } });
       if (!user) {
-        throw new NotFoundException('Користувача не знайдено');
+        // 404 Not Found
+        throw new RpcException({
+          statusCode: 404,
+          message: 'Користувача не знайдено',
+        });
       }
       return user;
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException('Помилка пошуку користувача');
+      // Якщо це вже RpcException (наприклад, 404), прокидаємо далі без змін
+      if (error instanceof RpcException) {
+        throw error;
+      }
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Помилка пошуку користувача',
+      });
     }
   }
 
@@ -69,37 +84,52 @@ export class UserService {
     try {
       return await this.userRepository.findOne({ where: { email } });
     } catch {
-      throw new InternalServerErrorException('Помилка при пошуку по email');
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Помилка при пошуку по email',
+      });
     }
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    // Спершу перевіримо, чи існує
     const user = await this.findOne(id);
 
     if (updateUserDto.password) {
-      const rawPassword = updateUserDto.password;
-      updateUserDto.password = await bcrypt.hash(rawPassword, 10);
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
     Object.assign(user, updateUserDto);
 
     try {
       return await this.userRepository.save(user);
-    } catch (error) {
+    } catch (error: any) {
+      // Якщо унікальність email порушена
       if (error.code === '23505' && error.detail?.includes('email')) {
-       
-        throw new ConflictException('Email вже використовується');
+        // 409 Conflict
+        throw new RpcException({
+          statusCode: 409,
+          message: 'Email вже використовується',
+        });
       }
-      throw new InternalServerErrorException('Не вдалося оновити користувача');
+      // 500 Internal Server Error
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Не вдалося оновити користувача',
+      });
     }
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<string> {
     const user = await this.findOne(id);
     try {
       await this.userRepository.remove(user);
+      return 'OK'; // ← Повертаємо бодай щось
     } catch {
-      throw new InternalServerErrorException('Не вдалося видалити користувача');
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Не вдалося видалити користувача',
+      });
     }
   }
 }

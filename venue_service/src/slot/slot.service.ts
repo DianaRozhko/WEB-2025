@@ -1,10 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { RpcException } from '@nestjs/microservices';
+import { In } from 'typeorm';
 import { Slot } from './slot.entity';
 import { CreateSlotDto } from './dto/create-slot.dto';
 import { UpdateSlotDto } from './dto/update-slot.dto';
@@ -27,7 +25,10 @@ export class SlotService {
     try {
       return await this.slotRepository.save(slot);
     } catch {
-      throw new InternalServerErrorException('Не вдалося створити слот');
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Не вдалося створити слот',
+      });
     }
   }
 
@@ -38,13 +39,21 @@ export class SlotService {
         order: { start_time: 'ASC' },
       });
     } catch {
-      throw new InternalServerErrorException('Не вдалося отримати слоти');
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Не вдалося отримати слоти',
+      });
     }
   }
 
   async update(id: string, updateSlotDto: UpdateSlotDto): Promise<Slot> {
     const slot = await this.slotRepository.findOne({ where: { id } });
-    if (!slot) throw new NotFoundException('Слот не знайдено');
+    if (!slot) {
+      throw new RpcException({
+        statusCode: 404,
+        message: 'Слот не знайдено',
+      });
+    }
 
     if (updateSlotDto.start_time) {
       slot.start_time = new Date(updateSlotDto.start_time);
@@ -62,41 +71,49 @@ export class SlotService {
     try {
       return await this.slotRepository.save(slot);
     } catch {
-      throw new InternalServerErrorException('Не вдалося оновити слот');
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Не вдалося оновити слот',
+      });
     }
   }
 
   async remove(id: string) {
     const slot = await this.slotRepository.findOne({ where: { id } });
-    if (!slot) throw new NotFoundException('Слот не знайдено');
-    await this.slotRepository.remove(slot);
-  
+    if (!slot) {
+      throw new RpcException({
+        statusCode: 404,
+        message: 'Слот не знайдено',
+      });
+    }
 
-    
+    try {
+      await this.slotRepository.remove(slot);
+    } catch {
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Не вдалося видалити слот',
+      });
+    }
   }
 
   async generateSlots(dto: GenerateSlotsDto): Promise<Slot[]> {
     const { venueId, period, slotDurationMinutes } = dto;
 
-    // 1) Шукаємо "останній" слот для venue, сортуємо за end_time.
     const lastSlot = await this.slotRepository.findOne({
       where: { venue: { id: venueId } },
       order: { end_time: 'DESC' },
     });
 
-    // 2) Визначимо, з якої дати починати
     let generateStart = new Date();
-    generateStart.setHours(0, 0, 0, 0); // Почнемо з початку дня
-    
+    generateStart.setHours(0, 0, 0, 0);
+
     if (lastSlot) {
-      // Можна почати з "наступного" дня після end_time
       generateStart = new Date(lastSlot.end_time);
-      // Наприклад, додаємо 1 день, щоб не дублювати.
       generateStart.setDate(generateStart.getDate() + 1);
       generateStart.setHours(0, 0, 0, 0);
     }
 
-    // 3) Кінець діапазону в залежності від period
     const generateEnd = new Date(generateStart);
     switch (period) {
       case 'day':
@@ -106,23 +123,19 @@ export class SlotService {
         generateEnd.setDate(generateEnd.getDate() + 7);
         break;
       case 'month':
-        // умовно +30 днів
         generateEnd.setDate(generateEnd.getDate() + 30);
         break;
     }
 
-    // 4) Генеруємо слоти по кожному дню від generateStart до generateEnd
     const allSlots: Slot[] = [];
-
-    // "currentDate" — ітерується по днях
     const currentDate = new Date(generateStart);
+
     while (currentDate < generateEnd) {
-      // приклад робочого часу: 08:00–22:00
       const dayStart = new Date(currentDate);
-      dayStart.setHours(8, 0, 0, 0); // 8:00
+      dayStart.setHours(8, 0, 0, 0);
 
       const dayEnd = new Date(currentDate);
-      dayEnd.setHours(22, 0, 0, 0); // 22:00
+      dayEnd.setHours(22, 0, 0, 0);
 
       let slotStart = new Date(dayStart);
 
@@ -138,21 +151,67 @@ export class SlotService {
         });
         allSlots.push(slot);
 
-        // Переходимо до наступного інтервалу
         slotStart = slotEnd;
       }
 
-      // Переводимо currentDate на наступний день
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    // 5) Зберігаємо масовим викликом save()
     try {
       return await this.slotRepository.save(allSlots);
     } catch (err) {
-      throw new InternalServerErrorException('Не вдалося згенерувати слоти');
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Не вдалося згенерувати слоти',
+      });
     }
   }
 
+
+
+  // slot.service.ts
+async findManyByIds(slotIds: string[]): Promise<Slot[]> {
+  // якщо TypeORM 0.3+
+  const slots = await this.slotRepository.find({
+    where: { id: In(slotIds) },
+    relations: ['venue'], // щоб venue.id був підтягнутий
+    order: { start_time: 'ASC' }, // необов'язково
+  });
+  return slots;
+}
+
+async makeSlotsUnavailable(slotIds: string[]) {
+  // Оновити is_available = false
+  await this.slotRepository.update({ id: In(slotIds) }, { is_available: false });
+  return { updatedCount: slotIds.length };
+}
+
+
+
+async makeSlotsAvailableInRange(data: {
+  venue_id: string;
+  start_time: string | Date;
+  end_time: string | Date;
+}) {
+  const { venue_id, start_time, end_time } = data;
+
+  try {
+    // Оновлюємо всі слоти, які починаються >= start_time і закінчуються <= end_time
+    await this.slotRepository.update(
+      {
+        venue: { id: venue_id },
+        start_time: MoreThanOrEqual(new Date(start_time)),
+        end_time: LessThanOrEqual(new Date(end_time)),
+      },
+      { is_available: true },
+    );
+    return { success: true };
+  } catch (err) {
+    throw new RpcException({
+      statusCode: 500,
+      message: 'Не вдалося звільнити слоти',
+    });
+  }
+}
 
 }

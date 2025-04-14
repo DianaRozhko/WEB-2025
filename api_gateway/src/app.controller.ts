@@ -1,4 +1,4 @@
-// api-gateway/app.controller.ts
+// api-gateway/src/app.controller.ts
 import {
   Controller,
   Get,
@@ -29,7 +29,7 @@ export class AppController {
   }
 
   // Захищений ендпоінт для отримання всіх користувачів
-  @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, AdminGuard)
   @Get('users')
   findAllUsers() {
     return this.appService.getAllUsers();
@@ -98,7 +98,7 @@ generateSlots(
   });
 }
 
-// ----------- SLOTS ----------- //
+// ----------- SLOTS -----------
 
 // Створення слота (доступно тільки адміну)
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -132,5 +132,39 @@ updateSlot(@Param('id') id: string, @Body() updateSlotDto: any) {
 removeSlot(@Param('id') id: string) {
   return this.appService.removeSlot(id);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@Post('bookings/from-slots')
+@UseGuards(JwtAuthGuard) // або що потрібно
+async createBookingFromSlots(@Body() data: { user_id: string; venue_id: string; slot_ids: string[] }) {
+  // Викликаємо метод у AppService, щоб не писати всю логіку в контролері
+  return this.appService.createBookingFromSlots(data);
+}
+
+// Видаляємо бронювання
+@Delete('bookings/:id')
+async cancelBooking(@Param('id') bookingId: string) {
+  return this.appService.cancelBookingOrchestrated(bookingId);
+}
+
+
 
 }

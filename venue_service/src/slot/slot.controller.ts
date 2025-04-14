@@ -1,5 +1,5 @@
 import { Controller, UsePipes, ValidationPipe } from '@nestjs/common';
-import { MessagePattern, RpcException } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { SlotService } from './slot.service';
 import { CreateSlotDto } from './dto/create-slot.dto';
 import { UpdateSlotDto } from './dto/update-slot.dto';
@@ -30,10 +30,34 @@ export class SlotController {
   }
 
 
-  @MessagePattern('generate_slots')
+  @MessagePattern('venue_generateSlots')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async generateSlots(dto: GenerateSlotsDto) {
     // Просто передаємо управління у сервіс
     return this.slotService.generateSlots(dto);
   }
+
+
+  // slot.controller.ts
+@MessagePattern('slot_findManyByIds')
+async findManyByIds(@Payload() data: { slot_ids: string[] }) {
+  return this.slotService.findManyByIds(data.slot_ids);
+}
+
+@MessagePattern('slot_makeUnavailable')
+async makeUnavailable(@Payload() data: { slot_ids: string[] }) {
+  return this.slotService.makeSlotsUnavailable(data.slot_ids);
+}
+
+
+// slot.controller.ts
+@MessagePattern('slots_makeAvailableInRange')
+async makeAvailable(@Payload() data: {
+  venue_id: string;
+  start_time: Date | string;
+  end_time: Date | string;
+}) {
+  return this.slotService.makeSlotsAvailableInRange(data);
+}
+
 }

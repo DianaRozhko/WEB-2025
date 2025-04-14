@@ -1,3 +1,4 @@
+//user-service/src/user.controller.ts
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { UserService } from './user.service';
@@ -13,17 +14,18 @@ export class UserController {
     private readonly authService: AuthService,
   ) {}
 
-  @MessagePattern('create_user')
+  @MessagePattern('user_create')
   async createUser(dto: CreateUserDto) {
+    console.log("user_create controller")
     return this.userService.create(dto);
   }
 
-  @MessagePattern('update_user')
+  @MessagePattern('user_update')
   async updateUser(data: { id: string; dto: UpdateUserDto }) {
     return this.userService.update(data.id, data.dto);
   }
 
-  @MessagePattern('remove_user')
+  @MessagePattern('user_remove')
   async removeUser(id: string) {
     return this.userService.remove(id);
   }
@@ -33,7 +35,7 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @MessagePattern('get_user_by_id')
+  @MessagePattern('user_findOne')
   async getUserById(id: string) {
     return this.userService.findOne(id);
   }

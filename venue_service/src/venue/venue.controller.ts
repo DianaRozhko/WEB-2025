@@ -9,25 +9,25 @@ export class VenueController {
   constructor(private readonly venueService: VenueService) {}
 
   // Створення нового майданчика
-  @MessagePattern('create_venue')
+  @MessagePattern('venue_create')
   async createVenue(createVenueDto: CreateVenueDto) {
     return this.venueService.create(createVenueDto);
   }
 
   // Отримання списку всіх майданчиків
-  @MessagePattern('get_all_venues')
+  @MessagePattern('venue_findAll')
   async getAllVenues() {
     return this.venueService.findAll();
   }
 
   // Оновлення майданчика
-  @MessagePattern('update_venue')
-  async updateVenue(data: { id: string; dto: UpdateVenueDto }) {
+  @MessagePattern('venue_update')
+  async updateVenue(@Payload() data: { id: string; dto: UpdateVenueDto }) {
     return this.venueService.update(data.id, data.dto);
   }
 
   // Видалення майданчика
-  @MessagePattern('remove_venue')
+  @MessagePattern('venue_remove')
   async removeVenue(id: string) {
     return this.venueService.remove(id);
   }

@@ -7,6 +7,8 @@ export class AdminGuard implements CanActivate {
     const user = request.user;
 
     if (user?.role !== 'admin') {
+      console.log("whatafackis nes : "+user.role)
+      
       throw new ForbiddenException('Тільки для адміністратора');
     }
 
