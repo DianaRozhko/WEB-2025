@@ -9,8 +9,8 @@ export class CreateBookingDto {
   venue_id: string;
 
   @IsDateString()
-  start_time: string; // ISO string (наприклад, 2025-06-01T10:00:00Z)
+  start_time: string; 
 
   @IsDateString()
-  end_time: string;   // ISO string
+  end_time: string;   
 }

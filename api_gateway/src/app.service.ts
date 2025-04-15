@@ -34,7 +34,7 @@ export class AppService {
       options: {
         urls: ['amqp://rabbitmq:5672'],
         queue: 'bookings_queue',
-        queueOptions: { durable: true }, // ← теж true
+        queueOptions: { durable: true }, // теж true
       },
     });
   }

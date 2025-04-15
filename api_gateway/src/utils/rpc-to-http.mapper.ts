@@ -10,7 +10,7 @@ import {
     console.log('[mapRpcToHttp] caught error ->', error);
      console.log(error instanceof RpcException)
 
-     //////////////////////
+     
      if (
         typeof error === 'object' &&
         error !== null &&
