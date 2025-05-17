@@ -20,7 +20,7 @@ export class BookingService {
       venue_id: dto.venue_id,
       start_time: new Date(dto.start_time),
       end_time: new Date(dto.end_time),
-      status: 'confirmed', 
+      status: 'confirmed', // або 'pending' залежно від логіки
     });
 
     try {

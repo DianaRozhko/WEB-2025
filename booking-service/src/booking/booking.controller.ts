@@ -12,7 +12,6 @@ export class BookingController {
     return this.bookingService.createBooking(dto);
   }
 
-  
   @MessagePattern('booking_getForUser')
   async getUserBookings(@Payload() userId: string) {
     return this.bookingService.getBookingsForUser(userId);

@@ -14,7 +14,7 @@ import { UserModule } from './user/user.module';
     // Підключення до бази даних
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST || 'postgres',
+      host: process.env.DB_HOST || 'rabbitmq',
       port: Number(process.env.DB_PORT) || 5432,
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',

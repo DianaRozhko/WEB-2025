@@ -8,7 +8,7 @@ import { BookingEntity } from './booking/booking.entity';
     // Підключення до тієї ж БД, що й інші сутності
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'postgres',
+      host: 'rabbitmq',
       port: 5432,
       username: 'postgres',
       password: 'postgres',
