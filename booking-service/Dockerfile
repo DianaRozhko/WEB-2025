@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Встановлюємо залежності
 RUN npm install
+RUN npm install -g @nestjs/cli
 
 # Копіюємо весь вихідний код у контейнер
 COPY . .
@@ -17,7 +18,7 @@ COPY . .
 RUN npm run build
 
 # Виставляємо порт 
-EXPOSE 3002
+EXPOSE 3000
 
 # Запускаємо застосунок
 CMD ["npm", "run", "start:prod"]

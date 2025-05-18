@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Встановлюємо залежності
 RUN npm install
+RUN npm install -g @nestjs/cli
 
 # Копіюємо весь вихідний код у контейнер
 COPY . .

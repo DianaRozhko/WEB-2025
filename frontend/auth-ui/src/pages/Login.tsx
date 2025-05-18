@@ -21,6 +21,7 @@ export default function Login() {
   }
 
   return (
+    <div className="auth-wrapper">
     <form className="auth-form" onSubmit={onSubmit}>
       <h2>Логін</h2>
       <input type="email"    value={email}    onChange={e=>setEmail(e.target.value)}    placeholder="Email"    required />
@@ -28,5 +29,6 @@ export default function Login() {
       <button type="submit">Увійти</button>
       <p>Не маєте акаунта? <Link to="/register">Реєстрація</Link></p>
     </form>
+    </div>
   );
 }

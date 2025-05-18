@@ -24,7 +24,7 @@ services:
   api_gateway:
     build:
       context: ./api_gateway
-      dockerfile: Dockerfile.yml
+      dockerfile: Dockerfile
     ports:
       - "3002:3002"
     depends_on:
@@ -34,7 +34,7 @@ services:
   user_service:
     build:
       context: ./user_service
-      dockerfile: Dockerfile.yml
+      dockerfile: Dockerfile
     depends_on:
       - postgres
       - rabbitmq
@@ -42,7 +42,7 @@ services:
   venue_service:
     build:
       context: ./venue_service
-      dockerfile: Dockerfile.yml
+      dockerfile: Dockerfile
     depends_on:
       - postgres
       - rabbitmq
@@ -50,7 +50,7 @@ services:
   booking_service:
     build:
       context: ./booking-service
-      dockerfile: Dockerfile.yml
+      dockerfile: Dockerfile
     depends_on:
       - postgres
       - rabbitmq
