@@ -58,7 +58,7 @@ export default function Venues() {
   return (
     <div className="venues-wrapper">
       <div className="venues-page">
-        <h1>Майданчики</h1>
+        <h1>Платформа для бронювання спортивних майданчиків</h1>
         <select
           value={filter}
           onChange={e => setFilter(e.target.value as any)}
