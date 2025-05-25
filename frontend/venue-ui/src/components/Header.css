@@ -1,0 +1,42 @@
+.header {
+    width: 100vw;
+    left: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    background: #f7faff;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    position: relative;
+    z-index: 10;
+  }
+  
+  .header-nav {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* головне! */
+    padding: 1rem 2rem;
+  }
+  
+  .nav-left {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+  }
+  
+  .admin-link {
+    color: #38bdf8;
+    font-weight: 700;
+  }
+  
+  .logout-btn {
+    color: #ef4444;
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+  }
+  

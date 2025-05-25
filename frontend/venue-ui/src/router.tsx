@@ -4,7 +4,7 @@ import EditVenue   from './pages/EditVenue'
 import { getJwt }  from './utils/auth'
 import { JSX }     from 'react'
 import { NotFound } from './pages/NoFound'
-
+import BookingPage from './pages/BookingPage'
 
 /** Guard: якщо токена немає – робимо *повний* редирект і нічого не рендеримо */
 function protect(element: JSX.Element) {
@@ -17,7 +17,7 @@ export const router = createBrowserRouter([
   { path: '/',           element: protect(<Venues />) },
   { path: '/venues',     element: protect(<Venues />) },
   { path: '/venues/:id', element: protect(<EditVenue />) },
-
+  { path: '/bookings', element: <BookingPage /> },
   // fallback 404
   { path: '*', element: <NotFound /> },
 ])
