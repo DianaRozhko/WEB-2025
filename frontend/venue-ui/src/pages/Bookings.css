@@ -1,53 +1,138 @@
+.booking-root {
+  max-width: 900px;
+  margin: 2rem auto;
+}
+.booking-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin-bottom: 22px;
+  text-align: left;
+}
+.booking-main {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
 .booking-card {
-    margin-bottom: 14px;
-    padding: 14px 18px;
-    background: #f3f4f6;
-    border-radius: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 10px 0 rgba(80, 109, 132, 0.08);
-    border: 1px solid #e5e7eb;
-    transition: box-shadow 0.2s;
-  }
-  .booking-card:hover {
-    box-shadow: 0 4px 24px 0 rgba(80,109,132,0.12);
-    background: #eef2fa;
-  }
-  .booking-card .cancel-btn {
-    background: #f87171;
-    color: #fff;
-    padding: 0.3rem 1.2rem;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: background 0.15s;
-    cursor: pointer;
-  }
-  .booking-card .cancel-btn:hover {
-    background: #dc2626;
-  }
-  
-
-  .booking-select {
-   
-    border-radius: 10px;
-    border: 1px solid #cbd5e1;
-    background: #fff;
-    font-size: 1.09rem;
-    font-family: inherit;
-    
-    outline: none;
-    box-shadow: 0 1px 4px rgba(60, 110, 180, 0.04);
-    transition: border 0.18s, box-shadow 0.18s;
-    min-width: 220px;
-  }
-  .booking-select:focus {
-    border: 1.5px solid #2563eb;
-    box-shadow: 0 2px 10px 0 rgba(37, 99, 235, 0.10);
-  }
-  .booking-select option {
-    padding: 5px;
-    font-size: 1rem;
-  }
-  
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.09);
+  padding: 32px 28px 22px 28px;
+  min-width: 320px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+.venue-select {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  margin-bottom: 16px;
+  background: #f8fafc;
+  font-size: 1rem;
+}
+.slots-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.slot-btn {
+  min-width: 105px;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: none;
+  background: #f1f5f9;
+  color: #222;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(36, 89, 185, 0.06);
+  cursor: pointer;
+  transition: all 0.18s;
+  outline: none;
+  border: 2px solid transparent;
+}
+.slot-btn.selected,
+.slot-btn:active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+  box-shadow: 0 2px 10px rgba(37,99,235,0.13);
+}
+.slot-btn:hover:not(.selected) {
+  background: #e0e7ff;
+}
+.booking-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(90deg,#2563eb,#38bdf8);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.10);
+  margin-top: 8px;
+  transition: background 0.19s, box-shadow 0.19s;
+  cursor: pointer;
+}
+.booking-btn:disabled {
+  background: #d1d5db;
+  color: #888;
+  cursor: not-allowed;
+}
+.duration-input {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  width: 70px;
+  font-size: 1rem;
+  background: #f1f5f9;
+  margin-right: 8px;
+}
+.gen-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  transition: background 0.18s;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(56,189,248,0.09);
+}
+.gen-btn:disabled {
+  background: #d1d5db;
+  color: #888;
+  cursor: not-allowed;
+}
+.mybookings-col {
+  flex: 1;
+  min-width: 320px;
+}
+.booking-card-item {
+  margin-bottom: 14px;
+  padding: 14px 18px;
+  background: #f3f4f6;
+  border-radius: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.02);
+}
+.cancel-btn {
+  background: #f87171;
+  color: #fff;
+  padding: 0.3rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.16s;
+}
+.cancel-btn:hover {
+  background: #ef4444;
+}
